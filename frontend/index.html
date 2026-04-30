@@ -1,0 +1,491 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>School Fee Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <meta property="og:image" content="https://bolt.new/static/og_default.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="https://bolt.new/static/og_default.png">
+</head>
+  <body class="bg-gray-100 min-h-screen font-sans">
+
+    <!-- LOGIN PAGE -->
+    <div id="page-login" class="flex items-center justify-center min-h-screen p-4">
+      <div class="bg-white rounded-lg shadow-md p-8 w-full max-w-md">
+        <h1 class="text-2xl font-bold text-gray-800 mb-6 text-center">Admin Login</h1>
+
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 mb-1">Name</label>
+          <input id="login-name" type="text" placeholder="Enter your name"
+            class="w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-400" />
+          <p id="login-name-err" class="text-red-500 text-sm mt-1 hidden"></p>
+        </div>
+
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+          <input id="login-phone" type="text" placeholder="10-digit phone number" maxlength="10"
+            class="w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-400" />
+          <p id="login-phone-err" class="text-red-500 text-sm mt-1 hidden"></p>
+        </div>
+
+        <div class="mb-6">
+          <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+          <input id="login-password" type="password" placeholder="6-character password" maxlength="6"
+            class="w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-400" />
+          <p id="login-password-err" class="text-red-500 text-sm mt-1 hidden"></p>
+        </div>
+
+        <p id="login-msg" class="text-center text-sm mb-4 hidden"></p>
+
+        <button onclick="handleLogin()"
+          class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg transition">
+          Login
+        </button>
+      </div>
+    </div>
+
+    <!-- DASHBOARD -->
+    <div id="page-dashboard" class="hidden min-h-screen p-4">
+
+      <!-- Navbar -->
+      <div class="bg-white shadow-md rounded-lg p-4 mb-6 flex items-center justify-between max-w-5xl mx-auto">
+        <h1 class="text-xl font-bold text-gray-800">Fee Management Dashboard</h1>
+        <button onclick="handleLogout()"
+          class="bg-red-500 hover:bg-red-600 text-white text-sm font-medium px-4 py-2 rounded-lg transition">
+          Logout
+        </button>
+      </div>
+
+      <!-- Tab Buttons -->
+      <div class="max-w-5xl mx-auto flex flex-wrap gap-2 mb-6">
+        <button onclick="showTab('tab-add-student')"
+          class="tab-btn text-sm font-medium px-4 py-2 rounded-lg transition" data-tab="tab-add-student">
+          Add Student
+        </button>
+        <button onclick="showTab('tab-students')"
+          class="tab-btn text-sm font-medium px-4 py-2 rounded-lg transition" data-tab="tab-students">
+          Students List
+        </button>
+        <button onclick="showTab('tab-pay-fees')"
+          class="tab-btn text-sm font-medium px-4 py-2 rounded-lg transition" data-tab="tab-pay-fees">
+          Pay Fees
+        </button>
+        <button onclick="showTab('tab-fee-details')"
+          class="tab-btn text-sm font-medium px-4 py-2 rounded-lg transition" data-tab="tab-fee-details">
+          Fee Details
+        </button>
+      </div>
+
+      <div class="max-w-5xl mx-auto">
+
+        <!-- Add Student Tab -->
+        <div id="tab-add-student" class="tab-content">
+          <div class="bg-white rounded-lg shadow-md p-6 max-w-md">
+            <h2 class="text-lg font-semibold text-gray-800 mb-4">Add New Student</h2>
+
+            <div class="mb-4">
+              <label class="block text-sm font-medium text-gray-700 mb-1">Student Name</label>
+              <input id="add-name" type="text" placeholder="Enter student name"
+                class="w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-400" />
+              <p id="add-name-err" class="text-red-500 text-sm mt-1 hidden"></p>
+            </div>
+
+            <div class="mb-6">
+              <label class="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+              <input id="add-phone" type="text" placeholder="10-digit phone number" maxlength="10"
+                class="w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-400" />
+              <p id="add-phone-err" class="text-red-500 text-sm mt-1 hidden"></p>
+            </div>
+
+            <p id="add-student-msg" class="text-sm mb-4 hidden"></p>
+
+            <button onclick="handleAddStudent()"
+              class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg transition">
+              Add Student
+            </button>
+          </div>
+        </div>
+
+        <!-- Students List Tab -->
+        <div id="tab-students" class="tab-content hidden">
+          <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="flex items-center justify-between mb-4">
+              <h2 class="text-lg font-semibold text-gray-800">All Students</h2>
+              <button onclick="loadStudents()"
+                class="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded-lg transition">
+                Refresh
+              </button>
+            </div>
+            <p id="students-msg" class="text-sm mb-4 hidden"></p>
+            <div class="overflow-x-auto">
+              <table class="w-full text-sm text-left border-collapse">
+                <thead>
+                  <tr class="bg-gray-50 border-b border-gray-200">
+                    <th class="px-4 py-3 font-semibold text-gray-600">#</th>
+                    <th class="px-4 py-3 font-semibold text-gray-600">Name</th>
+                    <th class="px-4 py-3 font-semibold text-gray-600">Phone Number</th>
+                  </tr>
+                </thead>
+                <tbody id="students-table-body">
+                  <tr>
+                    <td colspan="3" class="px-4 py-6 text-center text-gray-400">Click Refresh to load students</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pay Fees Tab -->
+        <div id="tab-pay-fees" class="tab-content hidden">
+          <div class="bg-white rounded-lg shadow-md p-6 max-w-md">
+            <h2 class="text-lg font-semibold text-gray-800 mb-4">Pay Fees</h2>
+
+            <div class="mb-4">
+              <label class="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+              <input id="fee-phone" type="text" placeholder="10-digit phone number" maxlength="10"
+                class="w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-400" />
+              <p id="fee-phone-err" class="text-red-500 text-sm mt-1 hidden"></p>
+            </div>
+
+            <div class="mb-4">
+              <label class="block text-sm font-medium text-gray-700 mb-1">Amount</label>
+              <input id="fee-amount" type="number" placeholder="Enter amount" min="1"
+                class="w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-400" />
+              <p id="fee-amount-err" class="text-red-500 text-sm mt-1 hidden"></p>
+            </div>
+
+            <div class="mb-6">
+              <label class="block text-sm font-medium text-gray-700 mb-1">Month</label>
+              <select id="fee-month"
+                class="w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white">
+                <option value="">-- Select Month --</option>
+                <option>January</option>
+                <option>February</option>
+                <option>March</option>
+                <option>April</option>
+                <option>May</option>
+                <option>June</option>
+                <option>July</option>
+                <option>August</option>
+                <option>September</option>
+                <option>October</option>
+                <option>November</option>
+                <option>December</option>
+              </select>
+              <p id="fee-month-err" class="text-red-500 text-sm mt-1 hidden"></p>
+            </div>
+
+            <p id="pay-fees-msg" class="text-sm mb-4 hidden"></p>
+
+            <button onclick="handlePayFees()"
+              class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg transition">
+              Submit Payment
+            </button>
+          </div>
+        </div>
+
+        <!-- Fee Details Tab -->
+        <div id="tab-fee-details" class="tab-content hidden">
+          <div class="bg-white rounded-lg shadow-md p-6">
+            <h2 class="text-lg font-semibold text-gray-800 mb-4">Fee Details by Year</h2>
+
+            <div class="flex gap-3 mb-6">
+              <div class="flex-1">
+                <input id="fee-year" type="number" placeholder="Enter year (e.g. 2024)"
+                  class="w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-400" />
+                <p id="fee-year-err" class="text-red-500 text-sm mt-1 hidden"></p>
+              </div>
+              <button onclick="handleFeeDetails()"
+                class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2 rounded-lg transition">
+                Search
+              </button>
+            </div>
+
+            <p id="fee-details-msg" class="text-sm mb-4 hidden"></p>
+
+            <div class="overflow-x-auto">
+              <table class="w-full text-sm text-left border-collapse">
+                <thead>
+                  <tr class="bg-gray-50 border-b border-gray-200">
+                    <th class="px-4 py-3 font-semibold text-gray-600">#</th>
+                    <th class="px-4 py-3 font-semibold text-gray-600">Student Name</th>
+                    <th class="px-4 py-3 font-semibold text-gray-600">Month</th>
+                    <th class="px-4 py-3 font-semibold text-gray-600">Amount</th>
+                  </tr>
+                </thead>
+                <tbody id="fee-details-table-body">
+                  <tr>
+                    <td colspan="4" class="px-4 py-6 text-center text-gray-400">Enter a year to view fee details</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <script>
+      const BASE_URL = "http://localhost:3000";
+
+      function showEl(id) { document.getElementById(id).classList.remove("hidden"); }
+      function hideEl(id) { document.getElementById(id).classList.add("hidden"); }
+
+      function setMsg(id, text, isError) {
+        const el = document.getElementById(id);
+        el.textContent = text;
+        el.className = "text-sm mb-4 " + (isError ? "text-red-500" : "text-green-500");
+        el.classList.remove("hidden");
+      }
+
+      function clearMsg(id) {
+        const el = document.getElementById(id);
+        el.textContent = "";
+        el.classList.add("hidden");
+      }
+
+      function setErr(id, text) {
+        const el = document.getElementById(id);
+        el.textContent = text;
+        el.classList.remove("hidden");
+      }
+
+      function clearErr(id) {
+        document.getElementById(id).textContent = "";
+        document.getElementById(id).classList.add("hidden");
+      }
+
+      function handleLogout() {
+        localStorage.removeItem("token");
+        showPage("login");
+      }
+
+      function showPage(page) {
+        if (page === "login") {
+          showEl("page-login");
+          hideEl("page-dashboard");
+        } else {
+          hideEl("page-login");
+          showEl("page-dashboard");
+        }
+      }
+
+      function showTab(tabId) {
+        document.querySelectorAll(".tab-content").forEach(el => el.classList.add("hidden"));
+        showEl(tabId);
+
+        document.querySelectorAll(".tab-btn").forEach(btn => {
+          if (btn.dataset.tab === tabId) {
+            btn.className = "tab-btn bg-blue-600 text-white text-sm font-medium px-4 py-2 rounded-lg transition";
+          } else {
+            btn.className = "tab-btn bg-white border border-gray-300 text-gray-700 text-sm font-medium px-4 py-2 rounded-lg hover:bg-gray-100 transition";
+          }
+        });
+
+        if (tabId === "tab-students") loadStudents();
+      }
+
+      async function handleLogin() {
+        const name = document.getElementById("login-name").value.trim();
+        const phone = document.getElementById("login-phone").value.trim();
+        const password = document.getElementById("login-password").value.trim();
+
+        clearErr("login-name-err");
+        clearErr("login-phone-err");
+        clearErr("login-password-err");
+        clearMsg("login-msg");
+
+        let valid = true;
+        if (!name) { setErr("login-name-err", "Name is required."); valid = false; }
+        if (!/^\d{10}$/.test(phone)) { setErr("login-phone-err", "Phone must be exactly 10 digits."); valid = false; }
+        if (password.length !== 6) { setErr("login-password-err", "Password must be exactly 6 characters."); valid = false; }
+        if (!valid) return;
+
+        try {
+          const response = await axios({
+            method: "POST",
+            url: BASE_URL + "/api/admin_login",
+            data: { name, phone_no: phone, password },
+            headers: { "Content-Type": "application/json" }
+          });
+          localStorage.setItem("token", response.data.token);
+          showPage("dashboard");
+          showTab("tab-add-student");
+        } catch (err) {
+          const msg = err.response && err.response.data && err.response.data.message
+            ? err.response.data.message : "Login failed. Please try again.";
+          setMsg("login-msg", msg, true);
+        }
+      }
+
+      async function handleAddStudent() {
+        const name = document.getElementById("add-name").value.trim();
+        const phone = document.getElementById("add-phone").value.trim();
+
+        clearErr("add-name-err");
+        clearErr("add-phone-err");
+        clearMsg("add-student-msg");
+
+        let valid = true;
+        if (!name) { setErr("add-name-err", "Student name is required."); valid = false; }
+        if (!/^\d{10}$/.test(phone)) { setErr("add-phone-err", "Phone must be exactly 10 digits."); valid = false; }
+        if (!valid) return;
+
+        const token = localStorage.getItem("token");
+        try {
+          const response = await axios({
+            method: "POST",
+            url: BASE_URL + "/api/add_student",
+            data: { name, phone_no: phone },
+            headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }
+          });
+          setMsg("add-student-msg", response.data.message || "Student added successfully.", false);
+          document.getElementById("add-name").value = "";
+          document.getElementById("add-phone").value = "";
+        } catch (err) {
+          const msg = err.response && err.response.data && err.response.data.message
+            ? err.response.data.message : "Failed to add student.";
+          setMsg("add-student-msg", msg, true);
+        }
+      }
+
+      async function loadStudents() {
+        const token = localStorage.getItem("token");
+        clearMsg("students-msg");
+
+        try {
+          const response = await axios({
+            method: "GET",
+            url: BASE_URL + "/api/students",
+            headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }
+          });
+
+          const students = response.data.data;
+          const tbody = document.getElementById("students-table-body");
+
+          if (!students || students.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="3" class="px-4 py-6 text-center text-gray-400">No students found.</td></tr>';
+            return;
+          }
+
+          tbody.innerHTML = students.map((s, i) => `
+            <tr class="border-b border-gray-100 hover:bg-gray-50">
+              <td class="px-4 py-3 text-gray-600">${i + 1}</td>
+              <td class="px-4 py-3 text-gray-800">${s.name}</td>
+              <td class="px-4 py-3 text-gray-800">${s.phone_no}</td>
+            </tr>
+          `).join("");
+        } catch (err) {
+          const msg = err.response && err.response.data && err.response.data.message
+            ? err.response.data.message : "Failed to load students.";
+          setMsg("students-msg", msg, true);
+        }
+      }
+
+      async function handlePayFees() {
+        const phone = document.getElementById("fee-phone").value.trim();
+        const amount = document.getElementById("fee-amount").value.trim();
+        const month = document.getElementById("fee-month").value;
+
+        clearErr("fee-phone-err");
+        clearErr("fee-amount-err");
+        clearErr("fee-month-err");
+        clearMsg("pay-fees-msg");
+
+        let valid = true;
+        if (!/^\d{10}$/.test(phone)) { setErr("fee-phone-err", "Phone must be exactly 10 digits."); valid = false; }
+        if (!amount || Number(amount) <= 0) { setErr("fee-amount-err", "Amount must be a positive number."); valid = false; }
+        if (!month) { setErr("fee-month-err", "Please select a month."); valid = false; }
+        if (!valid) return;
+
+        const token = localStorage.getItem("token");
+        try {
+          const response = await axios({
+            method: "POST",
+            url: BASE_URL + "/api/fees",
+            data: { phone_no: phone, amount: Number(amount), month },
+            headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }
+          });
+          setMsg("pay-fees-msg", response.data.message || "Fee payment recorded successfully.", false);
+          document.getElementById("fee-phone").value = "";
+          document.getElementById("fee-amount").value = "";
+          document.getElementById("fee-month").value = "";
+        } catch (err) {
+          const msg = err.response && err.response.data && err.response.data.message
+            ? err.response.data.message : "Failed to record payment.";
+          setMsg("pay-fees-msg", msg, true);
+        }
+      }
+async function handleFeeDetails() {
+  const year = document.getElementById("fee-year").value.trim();
+
+  clearErr("fee-year-err");
+  clearMsg("fee-details-msg");
+
+  if (!year) {
+    setErr("fee-year-err", "Year is required.");
+    return;
+  }
+
+  const token = localStorage.getItem("token");
+
+  try {
+    const response = await axios({
+      method: "GET",
+      url: BASE_URL + "/api/fees_detail/" + year,
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`
+      }
+    });
+
+    console.log("Fee API Response:", response.data); // debug
+
+    // ✅ FIX HERE
+    const fees = response.data.data;
+
+    const tbody = document.getElementById("fee-details-table-body");
+
+    if (!fees || fees.length === 0) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="4" class="px-4 py-6 text-center text-gray-400">
+            No fee records found for this year.
+          </td>
+        </tr>`;
+      return;
+    }
+
+    tbody.innerHTML = fees.map((f, i) => `
+      <tr class="border-b border-gray-100 hover:bg-gray-50">
+        <td class="px-4 py-3 text-gray-600">${i + 1}</td>
+        <td class="px-4 py-3 text-gray-800">${f.name}</td>
+        <td class="px-4 py-3 text-gray-800">${f.month}</td>
+        <td class="px-4 py-3 text-gray-800">${f.amount}</td>
+      </tr>
+    `).join("");
+
+  } catch (err) {
+    console.error(err);
+    const msg = err.response?.data?.message || "Failed to load fee details.";
+    setMsg("fee-details-msg", msg, true);
+  }
+}
+      window.onload = function () {
+        const token = localStorage.getItem("token");
+        if (token) {
+          showPage("dashboard");
+          showTab("tab-add-student");
+        } else {
+          showPage("login");
+        }
+      };
+    </script>
+
+  </body>
+</html>
