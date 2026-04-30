@@ -1,4 +1,4 @@
-# 📚 Library Management System (Backend)
+# 📚Student Tracker System (Backend)
 
 A full-stack backend system for managing a library using **Node.js, Express, MongoDB, Zod, bcrypt, and JWT authentication**.
 
@@ -24,10 +24,6 @@ This system handles **admin login, student management, and fee tracking** with a
 - Track paid / unpaid status
 - Prevent duplicate fee entries for same month
 
-## 📊 Dashboard Support
-- Total students count
-- Fees collection summary
-- Ready for analytics integration
 
 ---
 
@@ -37,7 +33,6 @@ This system handles **admin login, student management, and fee tracking** with a
 - Express.js
 - MongoDB (Mongoose)
 - Zod (Validation)
-
 - JWT (Authentication)
 
 ---
@@ -81,7 +76,7 @@ JWT Auth → Fetch Data → Send Response
 
 
 🧪 API Endpoints
-POST   /api/admin/login
+POST   /api/admin_login
 POST   /api/add_student
 GET    /api/students
 POST   /api/fees
